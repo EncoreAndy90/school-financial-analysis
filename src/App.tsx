@@ -64,6 +64,7 @@ import type { Scenario, ScenarioState } from './utils/scenarios'
 import jsPDF from 'jspdf'
 import autoTable from 'jspdf-autotable'
 import html2canvas from 'html2canvas'
+import ExcelJS from 'exceljs'
 
 interface FinancialData {
   year: string
@@ -511,6 +512,139 @@ function App() {
     }
 
     doc.save('school-financial-analysis.pdf')
+  }
+
+  const handleExportExcel = async () => {
+    const workbook = new ExcelJS.Workbook()
+    workbook.creator = 'School Financial Analysis'
+    workbook.created = new Date()
+
+    const assumptionsSheet = workbook.addWorksheet('Assumptions')
+    assumptionsSheet.mergeCells('A1', 'B1')
+    assumptionsSheet.getCell('A1').value = 'Assumptions'
+    assumptionsSheet.getCell('A1').font = { size: 14, bold: true }
+
+    const assumptionsRows: Array<[string, string | number]> = [
+      ['Discount Effect (%)', calculatedDiscountEffect],
+      ['Students (Year 1)', numChildrenYear1],
+      ['Students (Year 2)', numChildrenYear2],
+      ['Students (Year 3)', numChildrenYear3],
+      ['Fee per Term (Year 1)', feePerTermYear1],
+      ['Fee per Term (Year 2)', feePerTermYear2],
+      ['Fee per Term (Year 3)', feePerTermYear3],
+      ['Fee Increase (Year 1 %)', feeIncreaseYear1],
+      ['Fee Increase (Year 2 %)', feeIncreaseYear2],
+      ['Fee Increase (Year 3 %)', feeIncreaseYear3],
+      ['Pay Increase (Year 1 %)', payIncreaseYear1],
+      ['Pay Increase (Year 2 %)', payIncreaseYear2],
+      ['Pay Increase (Year 3 %)', payIncreaseYear3],
+      ['Inflation (Year 1 %)', inflationYear1],
+      ['Inflation (Year 2 %)', inflationYear2],
+      ['Inflation (Year 3 %)', inflationYear3],
+      ['Staff Costs Mode', useDetailedStaffCosts ? 'Detailed' : 'Share'],
+      ['Staff Cost Share (%)', staffCostShare],
+      ['Teacher Salary (Year 1)', avgAnnualSalaryYear1],
+      ['Teacher Salary (Year 2)', avgAnnualSalaryYear2],
+      ['Teacher Salary (Year 3)', avgAnnualSalaryYear3],
+      ['Support Salary (Year 1)', avgSupportSalaryYear1],
+      ['Support Salary (Year 2)', avgSupportSalaryYear2],
+      ['Support Salary (Year 3)', avgSupportSalaryYear3],
+      ['Teachers (Year 1)', numTeachersYear1],
+      ['Teachers (Year 2)', numTeachersYear2],
+      ['Teachers (Year 3)', numTeachersYear3],
+      ['Support Staff (Year 1)', numSupportYear1],
+      ['Support Staff (Year 2)', numSupportYear2],
+      ['Support Staff (Year 3)', numSupportYear3],
+      ['Current Annual Surplus', currentSurplus],
+      ['Scenario Name', scenarioName.trim() || ''],
+    ]
+
+    assumptionsRows.forEach((row, index) => {
+      const excelRow = assumptionsSheet.addRow(row)
+      if (index === 0) {
+        excelRow.getCell(1).font = { bold: true }
+      }
+    })
+    assumptionsSheet.columns = [{ width: 30 }, { width: 28 }]
+
+    const analysisSheet = workbook.addWorksheet('Yearly Analysis')
+    analysisSheet.mergeCells('A1', 'E1')
+    analysisSheet.getCell('A1').value = 'Yearly Analysis'
+    analysisSheet.getCell('A1').font = { size: 14, bold: true }
+
+    analysisSheet.addRow(['Metric', 'Current', 'Year 1', 'Year 2', 'Year 3']).font = { bold: true }
+
+    const current = financialData[0]
+    const year1 = financialData[1]
+    const year2 = financialData[2]
+    const year3 = financialData[3]
+
+    const metrics = [
+      {
+        label: 'Gross Revenue',
+        type: 'currency',
+        values: [current.grossRevenue, year1.grossRevenue, year2.grossRevenue, year3.grossRevenue],
+      },
+      {
+        label: 'Discounts',
+        type: 'currency',
+        values: [-current.discountAmount, -year1.discountAmount, -year2.discountAmount, -year3.discountAmount],
+      },
+      {
+        label: 'Turnover',
+        type: 'currency',
+        values: [current.revenue, year1.revenue, year2.revenue, year3.revenue],
+      },
+      {
+        label: 'Costs',
+        type: 'currency',
+        values: [current.costs, year1.costs, year2.costs, year3.costs],
+      },
+      {
+        label: 'Surplus',
+        type: 'currency',
+        values: [current.netPosition, year1.netPosition, year2.netPosition, year3.netPosition],
+      },
+      {
+        label: 'Fee Increase',
+        type: 'percent',
+        values: [current.feeIncrease, year1.feeIncrease, year2.feeIncrease, year3.feeIncrease],
+      },
+      {
+        label: 'Pay Increase',
+        type: 'percent',
+        values: [current.payIncrease, year1.payIncrease, year2.payIncrease, year3.payIncrease],
+      },
+    ]
+
+    metrics.forEach((metric) => {
+      const values = metric.type === 'percent'
+        ? metric.values.map((value) => value / 100)
+        : metric.values
+      const row = analysisSheet.addRow([metric.label, ...values])
+      for (let i = 2; i <= 5; i += 1) {
+        row.getCell(i).numFmt = metric.type === 'percent' ? '0.0%' : '£#,##0'
+      }
+    })
+
+    analysisSheet.columns = [
+      { width: 22 },
+      { width: 18 },
+      { width: 18 },
+      { width: 18 },
+      { width: 18 },
+    ]
+
+    const buffer = await workbook.xlsx.writeBuffer()
+    const blob = new Blob([buffer], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    })
+    const url = URL.createObjectURL(blob)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'school-financial-analysis.xlsx'
+    link.click()
+    URL.revokeObjectURL(url)
   }
 
   const currentStudentCount = childrenByYear[0]
@@ -1550,9 +1684,14 @@ function App() {
                             }
                             label="Include charts in PDF"
                           />
-                          <Button variant="outlined" onClick={handleExportPdf}>
-                            Export PDF
-                          </Button>
+                          <Stack direction="row" spacing={1} flexWrap="wrap">
+                            <Button variant="outlined" onClick={handleExportPdf}>
+                              Export PDF
+                            </Button>
+                            <Button variant="outlined" onClick={handleExportExcel}>
+                              Export Excel
+                            </Button>
+                          </Stack>
                         </Stack>
                       </AccordionDetails>
                     </Accordion>
