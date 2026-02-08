@@ -654,158 +654,156 @@ function App() {
   const currentTeacherCount = teachersByYear[0]
   const currentSupportCount = supportByYear[0]
 
+  const termsPerYear = 3
+  const effectiveDiscount = calculatedDiscountEffect / 100
+  const grossAnnualRevenue = currentStudentCount * currentFeePerTerm * termsPerYear
+  const discountAmount = grossAnnualRevenue * effectiveDiscount
+  const currentAnnualRevenue = grossAnnualRevenue - discountAmount
+  const currentAnnualCosts = currentAnnualRevenue - currentSurplus
+  const currentStaffCosts = useDetailedStaffCosts
+    ? (currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount)
+    : currentAnnualCosts * (staffCostShare / 100)
+  const currentNonStaffCosts = currentAnnualCosts - currentStaffCosts
+
   // Calculate financial projections
-  const financialData = useMemo(() => {
-    const termsPerYear = 3
-    const effectiveDiscount = calculatedDiscountEffect / 100
-    const grossAnnualRevenue = currentStudentCount * currentFeePerTerm * termsPerYear
-    const discountAmount = grossAnnualRevenue * effectiveDiscount
-    const currentAnnualRevenue = grossAnnualRevenue - discountAmount
-    const currentAnnualCosts = currentAnnualRevenue - currentSurplus
-    let staffCosts = useDetailedStaffCosts
-      ? (currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount)
-      : currentAnnualCosts * (staffCostShare / 100)
-    let nonStaffCosts = currentAnnualCosts - staffCosts
+  const financialData: FinancialData[] = [
+    // Current Year
+    (() => {
+      const staffCosts = currentStaffCosts
+      const nonStaffCosts = currentNonStaffCosts
 
-    const projections: FinancialData[] = []
-
-    projections.push({
-      year: 'Current',
-      revenue: currentAnnualRevenue,
-      costs: currentAnnualCosts,
-      netPosition: currentSurplus,
-      feeIncrease: 0,
-      payIncrease: 0,
-      discountAmount: discountAmount,
-      grossRevenue: grossAnnualRevenue,
-      staffCosts,
-      nonStaffCosts,
-    })
-
+      return {
+        year: 'Current',
+        revenue: currentAnnualRevenue,
+        costs: currentAnnualCosts,
+        netPosition: currentSurplus,
+        feeIncrease: 0,
+        payIncrease: 0,
+        discountAmount,
+        grossRevenue: grossAnnualRevenue,
+        staffCosts,
+        nonStaffCosts,
+      }
+    })(),
     // Year 1
-    const year1FeeIncrease = feeIncreaseByYear[0]
-    const year1PayIncrease = payIncreaseByYear[0]
-    const year1InflationRate = inflationByYear[0]
-    const year1FeeMultiplier = 1 + year1FeeIncrease / 100
-    const year1PayMultiplier = 1 + year1PayIncrease / 100
-    const year1InflationMultiplier = 1 + year1InflationRate / 100
+    (() => {
+      const termsPerYear = 3
+      const effectiveDiscount = calculatedDiscountEffect / 100
+      const year1FeeIncrease = feeIncreaseByYear[0]
+      const year1PayIncrease = payIncreaseByYear[0]
+      const year1InflationRate = inflationByYear[0]
+      const year1FeeMultiplier = 1 + year1FeeIncrease / 100
+      const year1PayMultiplier = 1 + year1PayIncrease / 100
+      const year1InflationMultiplier = 1 + year1InflationRate / 100
 
-    const year1GrossRevenue = childrenByYear[0] * feePerTermByYear[0] * termsPerYear * year1FeeMultiplier
-    const year1DiscountAmount = year1GrossRevenue * effectiveDiscount
-    const year1Revenue = year1GrossRevenue - year1DiscountAmount
-    staffCosts = useDetailedStaffCosts
-      ? (
-        teacherSalaryByYear[0] * teachersByYear[0]
-        + supportSalaryByYear[0] * supportByYear[0]
-      ) * year1PayMultiplier
-      : staffCosts * year1PayMultiplier
-    nonStaffCosts = nonStaffCosts * year1InflationMultiplier
-    const year1Costs = staffCosts + nonStaffCosts
-    const year1Net = year1Revenue - year1Costs
+      const year1GrossRevenue = childrenByYear[0] * feePerTermByYear[0] * termsPerYear * year1FeeMultiplier
+      const year1DiscountAmount = year1GrossRevenue * effectiveDiscount
+      const year1Revenue = year1GrossRevenue - year1DiscountAmount
 
-    projections.push({
-      year: 'Year 1',
-      revenue: year1Revenue,
-      costs: year1Costs,
-      netPosition: year1Net,
-      feeIncrease: year1FeeIncrease,
-      payIncrease: year1PayIncrease,
-      discountAmount: year1DiscountAmount,
-      grossRevenue: year1GrossRevenue,
-      staffCosts,
-      nonStaffCosts,
-    })
+      const baseStaffCosts = useDetailedStaffCosts
+        ? (teacherSalaryByYear[0] * teachersByYear[0] + supportSalaryByYear[0] * supportByYear[0])
+        : (
+          // fallback to "Current" staffCosts, but properly update:
+          ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount)) // fallback, safe for legacy/calc
+        )
+      const staffCosts = baseStaffCosts * year1PayMultiplier
+      const baseNonStaffCosts = currentNonStaffCosts
+      const nonStaffCosts = baseNonStaffCosts * year1InflationMultiplier
+      const year1Costs = staffCosts + nonStaffCosts
+      const year1Net = year1Revenue - year1Costs
 
+      return {
+        year: 'Year 1',
+        revenue: year1Revenue,
+        costs: year1Costs,
+        netPosition: year1Net,
+        feeIncrease: year1FeeIncrease,
+        payIncrease: year1PayIncrease,
+        discountAmount: year1DiscountAmount,
+        grossRevenue: year1GrossRevenue,
+        staffCosts,
+        nonStaffCosts,
+      }
+    })(),
     // Year 2
-    const year2FeeIncrease = feeIncreaseByYear[1]
-    const year2PayIncrease = payIncreaseByYear[1]
-    const year2InflationRate = inflationByYear[1]
-    const year2FeeMultiplier = 1 + year2FeeIncrease / 100
-    const year2PayMultiplier = 1 + year2PayIncrease / 100
-    const year2InflationMultiplier = 1 + year2InflationRate / 100
+    (() => {
+      const termsPerYear = 3
+      const effectiveDiscount = calculatedDiscountEffect / 100
+      const year2FeeIncrease = feeIncreaseByYear[1]
+      const year2PayIncrease = payIncreaseByYear[1]
+      const year2InflationRate = inflationByYear[1]
+      const year2FeeMultiplier = 1 + year2FeeIncrease / 100
+      const year2PayMultiplier = 1 + year2PayIncrease / 100
+      const year2InflationMultiplier = 1 + year2InflationRate / 100
 
-    const year2GrossRevenue = childrenByYear[1] * feePerTermByYear[1] * termsPerYear * year2FeeMultiplier
-    const year2DiscountAmount = year2GrossRevenue * effectiveDiscount
-    const year2Revenue = year2GrossRevenue - year2DiscountAmount
-    staffCosts = useDetailedStaffCosts
-      ? (
-        teacherSalaryByYear[1] * teachersByYear[1]
-        + supportSalaryByYear[1] * supportByYear[1]
-      ) * year2PayMultiplier
-      : staffCosts * year2PayMultiplier
-    nonStaffCosts = nonStaffCosts * year2InflationMultiplier
-    const year2Costs = staffCosts + nonStaffCosts
-    const year2Net = year2Revenue - year2Costs
+      const year2GrossRevenue = childrenByYear[1] * feePerTermByYear[1] * termsPerYear * year2FeeMultiplier
+      const year2DiscountAmount = year2GrossRevenue * effectiveDiscount
+      const year2Revenue = year2GrossRevenue - year2DiscountAmount
 
-    projections.push({
-      year: 'Year 2',
-      revenue: year2Revenue,
-      costs: year2Costs,
-      netPosition: year2Net,
-      feeIncrease: year2FeeIncrease,
-      payIncrease: year2PayIncrease,
-      discountAmount: year2DiscountAmount,
-      grossRevenue: year2GrossRevenue,
-      staffCosts,
-      nonStaffCosts,
-    })
+      const baseStaffCosts = useDetailedStaffCosts
+        ? (teacherSalaryByYear[1] * teachersByYear[1] + supportSalaryByYear[1] * supportByYear[1])
+        : (
+          ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount))
+        )
+      const staffCosts = baseStaffCosts * year2PayMultiplier
+      const baseNonStaffCosts = currentNonStaffCosts
+      const nonStaffCosts = baseNonStaffCosts * year2InflationMultiplier
+      const year2Costs = staffCosts + nonStaffCosts
+      const year2Net = year2Revenue - year2Costs
 
+      return {
+        year: 'Year 2',
+        revenue: year2Revenue,
+        costs: year2Costs,
+        netPosition: year2Net,
+        feeIncrease: year2FeeIncrease,
+        payIncrease: year2PayIncrease,
+        discountAmount: year2DiscountAmount,
+        grossRevenue: year2GrossRevenue,
+        staffCosts,
+        nonStaffCosts,
+      }
+    })(),
     // Year 3
-    const year3FeeIncrease = feeIncreaseByYear[2]
-    const year3PayIncrease = payIncreaseByYear[2]
-    const year3InflationRate = inflationByYear[2]
-    const year3FeeMultiplier = 1 + year3FeeIncrease / 100
-    const year3PayMultiplier = 1 + year3PayIncrease / 100
-    const year3InflationMultiplier = 1 + year3InflationRate / 100
+    (() => {
+      const termsPerYear = 3
+      const effectiveDiscount = calculatedDiscountEffect / 100
+      const year3FeeIncrease = feeIncreaseByYear[2]
+      const year3PayIncrease = payIncreaseByYear[2]
+      const year3InflationRate = inflationByYear[2]
+      const year3FeeMultiplier = 1 + year3FeeIncrease / 100
+      const year3PayMultiplier = 1 + year3PayIncrease / 100
+      const year3InflationMultiplier = 1 + year3InflationRate / 100
 
-    const year3GrossRevenue = childrenByYear[2] * feePerTermByYear[2] * termsPerYear * year3FeeMultiplier
-    const year3DiscountAmount = year3GrossRevenue * effectiveDiscount
-    const year3Revenue = year3GrossRevenue - year3DiscountAmount
-    staffCosts = useDetailedStaffCosts
-      ? (
-        teacherSalaryByYear[2] * teachersByYear[2]
-        + supportSalaryByYear[2] * supportByYear[2]
-      ) * year3PayMultiplier
-      : staffCosts * year3PayMultiplier
-    nonStaffCosts = nonStaffCosts * year3InflationMultiplier
-    const year3Costs = staffCosts + nonStaffCosts
-    const year3Net = year3Revenue - year3Costs
+      const year3GrossRevenue = childrenByYear[2] * feePerTermByYear[2] * termsPerYear * year3FeeMultiplier
+      const year3DiscountAmount = year3GrossRevenue * effectiveDiscount
+      const year3Revenue = year3GrossRevenue - year3DiscountAmount
 
-    projections.push({
-      year: 'Year 3',
-      revenue: year3Revenue,
-      costs: year3Costs,
-      netPosition: year3Net,
-      feeIncrease: year3FeeIncrease,
-      payIncrease: year3PayIncrease,
-      discountAmount: year3DiscountAmount,
-      grossRevenue: year3GrossRevenue,
-      staffCosts,
-      nonStaffCosts,
-    })
+      const baseStaffCosts = useDetailedStaffCosts
+        ? (teacherSalaryByYear[2] * teachersByYear[2] + supportSalaryByYear[2] * supportByYear[2])
+        : (
+          ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount))
+        )
+      const staffCosts = baseStaffCosts * year3PayMultiplier
+      const baseNonStaffCosts = currentNonStaffCosts
+      const nonStaffCosts = baseNonStaffCosts * year3InflationMultiplier
+      const year3Costs = staffCosts + nonStaffCosts
+      const year3Net = year3Revenue - year3Costs
 
-    return projections
-  }, [
-    feeIncreaseByYear,
-    feePerTermByYear,
-    payIncreaseByYear,
-    inflationByYear,
-    childrenByYear,
-    teachersByYear,
-    supportByYear,
-    teacherSalaryByYear,
-    supportSalaryByYear,
-    currentStudentCount,
-    currentFeePerTerm,
-    currentTeacherSalary,
-    currentSupportSalary,
-    currentTeacherCount,
-    currentSupportCount,
-    currentSurplus,
-    calculatedDiscountEffect,
-    staffCostShare,
-    useDetailedStaffCosts,
-  ])
+      return {
+        year: 'Year 3',
+        revenue: year3Revenue,
+        costs: year3Costs,
+        netPosition: year3Net,
+        feeIncrease: year3FeeIncrease,
+        payIncrease: year3PayIncrease,
+        discountAmount: year3DiscountAmount,
+        grossRevenue: year3GrossRevenue,
+        staffCosts,
+        nonStaffCosts,
+      }
+    })(),
+  ]
 
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-GB', {
