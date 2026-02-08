@@ -253,6 +253,84 @@ function App() {
       : [avgSupportSalary, avgSupportSalary, avgSupportSalary]
   }, [useStaffByYear, avgSupportSalary, avgSupportSalaryYear1, avgSupportSalaryYear2, avgSupportSalaryYear3])
 
+  const roundSalary = (value: number) => Math.round(value)
+
+  const applyYear1PayIncrease = (value: number) => {
+    setPayIncreaseYear1(value)
+
+    if (!useStaffByYear) {
+      return
+    }
+
+    const year1Teacher = roundSalary(avgAnnualSalary * (1 + value / 100))
+    const year1Support = roundSalary(avgSupportSalary * (1 + value / 100))
+    const year2Teacher = roundSalary(year1Teacher * (1 + payIncreaseYear2 / 100))
+    const year2Support = roundSalary(year1Support * (1 + payIncreaseYear2 / 100))
+    const year3Teacher = roundSalary(year2Teacher * (1 + payIncreaseYear3 / 100))
+    const year3Support = roundSalary(year2Support * (1 + payIncreaseYear3 / 100))
+
+    setAvgAnnualSalaryYear1(year1Teacher)
+    setAvgSupportSalaryYear1(year1Support)
+    setAvgAnnualSalaryYear2(year2Teacher)
+    setAvgSupportSalaryYear2(year2Support)
+    setAvgAnnualSalaryYear3(year3Teacher)
+    setAvgSupportSalaryYear3(year3Support)
+  }
+
+  const applyYear2PayIncrease = (value: number) => {
+    setPayIncreaseYear2(value)
+
+    if (!useStaffByYear) {
+      return
+    }
+
+    const year2Teacher = roundSalary(avgAnnualSalaryYear1 * (1 + value / 100))
+    const year2Support = roundSalary(avgSupportSalaryYear1 * (1 + value / 100))
+    const year3Teacher = roundSalary(year2Teacher * (1 + payIncreaseYear3 / 100))
+    const year3Support = roundSalary(year2Support * (1 + payIncreaseYear3 / 100))
+
+    setAvgAnnualSalaryYear2(year2Teacher)
+    setAvgSupportSalaryYear2(year2Support)
+    setAvgAnnualSalaryYear3(year3Teacher)
+    setAvgSupportSalaryYear3(year3Support)
+  }
+
+  const applyYear3PayIncrease = (value: number) => {
+    setPayIncreaseYear3(value)
+
+    if (!useStaffByYear) {
+      return
+    }
+
+    const year3Teacher = roundSalary(avgAnnualSalaryYear2 * (1 + value / 100))
+    const year3Support = roundSalary(avgSupportSalaryYear2 * (1 + value / 100))
+
+    setAvgAnnualSalaryYear3(year3Teacher)
+    setAvgSupportSalaryYear3(year3Support)
+  }
+
+  const handleUsePayIncreaseByYearChange = (checked: boolean) => {
+    setUsePayIncreaseByYear(checked)
+
+    if (!checked || !useStaffByYear) {
+      return
+    }
+
+    const year1Teacher = roundSalary(avgAnnualSalary * (1 + payIncreaseYear1 / 100))
+    const year1Support = roundSalary(avgSupportSalary * (1 + payIncreaseYear1 / 100))
+    const year2Teacher = roundSalary(year1Teacher * (1 + payIncreaseYear2 / 100))
+    const year2Support = roundSalary(year1Support * (1 + payIncreaseYear2 / 100))
+    const year3Teacher = roundSalary(year2Teacher * (1 + payIncreaseYear3 / 100))
+    const year3Support = roundSalary(year2Support * (1 + payIncreaseYear3 / 100))
+
+    setAvgAnnualSalaryYear1(year1Teacher)
+    setAvgSupportSalaryYear1(year1Support)
+    setAvgAnnualSalaryYear2(year2Teacher)
+    setAvgSupportSalaryYear2(year2Support)
+    setAvgAnnualSalaryYear3(year3Teacher)
+    setAvgSupportSalaryYear3(year3Support)
+  }
+
   const buildScenarioState = (): ScenarioState => ({
     numChildren,
     useStudentsByYear,
@@ -1286,6 +1364,22 @@ function App() {
                                       ),
                                     }}
                                   />
+                                  {usePayIncreaseByYear && (
+                                    <Box>
+                                      <Typography gutterBottom>
+                                        Year 1 Pay Increase: {payIncreaseYear1}%
+                                      </Typography>
+                                      <Slider
+                                        value={payIncreaseYear1}
+                                        onChange={(_, value) => applyYear1PayIncrease(value as number)}
+                                        min={0}
+                                        max={5}
+                                        step={0.1}
+                                        marks
+                                        valueLabelDisplay="auto"
+                                      />
+                                    </Box>
+                                  )}
                                   <TextField
                                     label="Year 1 Teachers"
                                     type="number"
@@ -1343,6 +1437,22 @@ function App() {
                                       ),
                                     }}
                                   />
+                                  {usePayIncreaseByYear && (
+                                    <Box>
+                                      <Typography gutterBottom>
+                                        Year 2 Pay Increase: {payIncreaseYear2}%
+                                      </Typography>
+                                      <Slider
+                                        value={payIncreaseYear2}
+                                        onChange={(_, value) => applyYear2PayIncrease(value as number)}
+                                        min={0}
+                                        max={5}
+                                        step={0.1}
+                                        marks
+                                        valueLabelDisplay="auto"
+                                      />
+                                    </Box>
+                                  )}
                                   <TextField
                                     label="Year 2 Teachers"
                                     type="number"
@@ -1400,6 +1510,22 @@ function App() {
                                       ),
                                     }}
                                   />
+                                  {usePayIncreaseByYear && (
+                                    <Box>
+                                      <Typography gutterBottom>
+                                        Year 3 Pay Increase: {payIncreaseYear3}%
+                                      </Typography>
+                                      <Slider
+                                        value={payIncreaseYear3}
+                                        onChange={(_, value) => applyYear3PayIncrease(value as number)}
+                                        min={0}
+                                        max={5}
+                                        step={0.1}
+                                        marks
+                                        valueLabelDisplay="auto"
+                                      />
+                                    </Box>
+                                  )}
                                   <TextField
                                     label="Year 3 Teachers"
                                     type="number"
@@ -1524,7 +1650,7 @@ function App() {
                             control={
                               <Switch
                                 checked={usePayIncreaseByYear}
-                                onChange={(e) => setUsePayIncreaseByYear(e.target.checked)}
+                                onChange={(e) => handleUsePayIncreaseByYearChange(e.target.checked)}
                                 color="primary"
                               />
                             }
@@ -1532,42 +1658,46 @@ function App() {
                           />
                           {usePayIncreaseByYear ? (
                             <>
-                              <Box>
-                                <Typography gutterBottom>Year 1: {payIncreaseYear1}%</Typography>
-                                <Slider
-                                  value={payIncreaseYear1}
-                                  onChange={(_, value) => setPayIncreaseYear1(value as number)}
-                                  min={1}
-                                  max={5}
-                                  step={0.1}
-                                  marks
-                                  valueLabelDisplay="auto"
-                                />
-                              </Box>
-                              <Box>
-                                <Typography gutterBottom>Year 2: {payIncreaseYear2}%</Typography>
-                                <Slider
-                                  value={payIncreaseYear2}
-                                  onChange={(_, value) => setPayIncreaseYear2(value as number)}
-                                  min={1}
-                                  max={5}
-                                  step={0.1}
-                                  marks
-                                  valueLabelDisplay="auto"
-                                />
-                              </Box>
-                              <Box>
-                                <Typography gutterBottom>Year 3: {payIncreaseYear3}%</Typography>
-                                <Slider
-                                  value={payIncreaseYear3}
-                                  onChange={(_, value) => setPayIncreaseYear3(value as number)}
-                                  min={1}
-                                  max={5}
-                                  step={0.1}
-                                  marks
-                                  valueLabelDisplay="auto"
-                                />
-                              </Box>
+                              {!useStaffByYear && (
+                                <>
+                                  <Box>
+                                    <Typography gutterBottom>Year 1: {payIncreaseYear1}%</Typography>
+                                    <Slider
+                                      value={payIncreaseYear1}
+                                      onChange={(_, value) => setPayIncreaseYear1(value as number)}
+                                      min={0}
+                                      max={5}
+                                      step={0.1}
+                                      marks
+                                      valueLabelDisplay="auto"
+                                    />
+                                  </Box>
+                                  <Box>
+                                    <Typography gutterBottom>Year 2: {payIncreaseYear2}%</Typography>
+                                    <Slider
+                                      value={payIncreaseYear2}
+                                      onChange={(_, value) => setPayIncreaseYear2(value as number)}
+                                      min={0}
+                                      max={5}
+                                      step={0.1}
+                                      marks
+                                      valueLabelDisplay="auto"
+                                    />
+                                  </Box>
+                                  <Box>
+                                    <Typography gutterBottom>Year 3: {payIncreaseYear3}%</Typography>
+                                    <Slider
+                                      value={payIncreaseYear3}
+                                      onChange={(_, value) => setPayIncreaseYear3(value as number)}
+                                      min={0}
+                                      max={5}
+                                      step={0.1}
+                                      marks
+                                      valueLabelDisplay="auto"
+                                    />
+                                  </Box>
+                                </>
+                              )}
                             </>
                           ) : (
                             <Box>
@@ -1577,7 +1707,7 @@ function App() {
                               <Slider
                                 value={payIncrease}
                                 onChange={(_, value) => setPayIncrease(value as number)}
-                                min={1}
+                                min={0}
                                 max={5}
                                 step={0.1}
                                 marks
