@@ -706,7 +706,9 @@ function App() {
           // fallback to "Current" staffCosts, but properly update:
           ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount)) // fallback, safe for legacy/calc
         )
-      const staffCosts = baseStaffCosts * year1PayMultiplier
+      const staffCosts = useDetailedStaffCosts && useStaffByYear
+        ? baseStaffCosts
+        : baseStaffCosts * year1PayMultiplier
       const baseNonStaffCosts = currentNonStaffCosts
       const nonStaffCosts = baseNonStaffCosts * year1InflationMultiplier
       const year1Costs = staffCosts + nonStaffCosts
@@ -745,7 +747,9 @@ function App() {
         : (
           ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount))
         )
-      const staffCosts = baseStaffCosts * year2PayMultiplier
+      const staffCosts = useDetailedStaffCosts && useStaffByYear
+        ? baseStaffCosts
+        : baseStaffCosts * year2PayMultiplier
       const baseNonStaffCosts = currentNonStaffCosts
       const nonStaffCosts = baseNonStaffCosts * year2InflationMultiplier
       const year2Costs = staffCosts + nonStaffCosts
@@ -784,7 +788,9 @@ function App() {
         : (
           ((currentTeacherSalary * currentTeacherCount) + (currentSupportSalary * currentSupportCount))
         )
-      const staffCosts = baseStaffCosts * year3PayMultiplier
+      const staffCosts = useDetailedStaffCosts && useStaffByYear
+        ? baseStaffCosts
+        : baseStaffCosts * year3PayMultiplier
       const baseNonStaffCosts = currentNonStaffCosts
       const nonStaffCosts = baseNonStaffCosts * year3InflationMultiplier
       const year3Costs = staffCosts + nonStaffCosts
