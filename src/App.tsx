@@ -4,7 +4,6 @@ import {
   Line,
   BarChart,
   Bar,
-  Cell,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -70,6 +69,7 @@ interface FinancialData {
   year: string
   revenue: number
   costs: number
+  annualSurplus: number
   netPosition: number
   feeIncrease: number
   payIncrease: number
@@ -538,7 +538,8 @@ function App() {
         'Discounts',
         'Turnover',
         'Costs',
-        'Surplus',
+        'Annual Surplus',
+        'Cumulative Surplus',
         'Fee %',
         'Pay %',
       ]],
@@ -548,6 +549,7 @@ function App() {
         formatCurrency(-row.discountAmount),
         formatCurrency(row.revenue),
         formatCurrency(row.costs),
+        formatCurrency(row.annualSurplus),
         formatCurrency(row.netPosition),
         row.feeIncrease ? `${row.feeIncrease}%` : '-',
         row.payIncrease ? `${row.payIncrease}%` : '-',
@@ -679,7 +681,12 @@ function App() {
         values: [current.costs, year1.costs, year2.costs, year3.costs],
       },
       {
-        label: 'Surplus',
+        label: 'Annual Surplus',
+        type: 'currency',
+        values: [current.annualSurplus, year1.annualSurplus, year2.annualSurplus, year3.annualSurplus],
+      },
+      {
+        label: 'Cumulative Surplus',
         type: 'currency',
         values: [current.netPosition, year1.netPosition, year2.netPosition, year3.netPosition],
       },
@@ -747,6 +754,7 @@ function App() {
     year: 'Current',
     revenue: currentAnnualRevenue,
     costs: currentAnnualCosts,
+    annualSurplus: currentSurplus,
     netPosition: currentSurplus,
     feeIncrease: 0,
     payIncrease: 0,
@@ -778,13 +786,14 @@ function App() {
     : year1BaseStaffCosts * year1PayMultiplier
   const year1NonStaffCosts = currentNonStaffCosts * year1InflationMultiplier
   const year1Costs = year1StaffCosts + year1NonStaffCosts
-  const year1NetDelta = year1Revenue - year1Costs
-  const year1Net = currentData.netPosition + year1NetDelta
+  const year1AnnualSurplus = year1Revenue - year1Costs
+  const year1Net = currentData.netPosition + year1AnnualSurplus
 
   const year1Data: FinancialData = {
     year: 'Year 1',
     revenue: year1Revenue,
     costs: year1Costs,
+    annualSurplus: year1AnnualSurplus,
     netPosition: year1Net,
     feeIncrease: year1FeeIncrease,
     payIncrease: year1PayIncrease,
@@ -815,13 +824,14 @@ function App() {
     : year2BaseStaffCosts * year2PayMultiplier
   const year2NonStaffCosts = currentNonStaffCosts * year2InflationMultiplier
   const year2Costs = year2StaffCosts + year2NonStaffCosts
-  const year2NetDelta = year2Revenue - year2Costs
-  const year2Net = year1Data.netPosition + year2NetDelta
+  const year2AnnualSurplus = year2Revenue - year2Costs
+  const year2Net = year1Data.netPosition + year2AnnualSurplus
 
   const year2Data: FinancialData = {
     year: 'Year 2',
     revenue: year2Revenue,
     costs: year2Costs,
+    annualSurplus: year2AnnualSurplus,
     netPosition: year2Net,
     feeIncrease: year2FeeIncrease,
     payIncrease: year2PayIncrease,
@@ -852,13 +862,14 @@ function App() {
     : year3BaseStaffCosts * year3PayMultiplier
   const year3NonStaffCosts = currentNonStaffCosts * year3InflationMultiplier
   const year3Costs = year3StaffCosts + year3NonStaffCosts
-  const year3NetDelta = year3Revenue - year3Costs
-  const year3Net = year2Data.netPosition + year3NetDelta
+  const year3AnnualSurplus = year3Revenue - year3Costs
+  const year3Net = year2Data.netPosition + year3AnnualSurplus
 
   const year3Data: FinancialData = {
     year: 'Year 3',
     revenue: year3Revenue,
     costs: year3Costs,
+    annualSurplus: year3AnnualSurplus,
     netPosition: year3Net,
     feeIncrease: year3FeeIncrease,
     payIncrease: year3PayIncrease,
@@ -1854,13 +1865,13 @@ function App() {
                     <Card>
                       <CardContent>
                         <Typography color="textSecondary" gutterBottom variant="body2">
-                          Year 3 Surplus
+                          Year 3 Annual Surplus
                         </Typography>
                         <Typography
                           variant="h6"
-                          color={financialData[3].netPosition >= 0 ? 'success.main' : 'error.main'}
+                          color={financialData[3].annualSurplus >= 0 ? 'success.main' : 'error.main'}
                         >
-                          {formatCurrency(financialData[3].netPosition)}
+                          {formatCurrency(financialData[3].annualSurplus)}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -1869,19 +1880,13 @@ function App() {
                     <Card>
                       <CardContent>
                         <Typography color="textSecondary" gutterBottom variant="body2">
-                          3-Year Change
+                          Year 3 Cumulative Surplus
                         </Typography>
                         <Typography
                           variant="h6"
-                          color={
-                            financialData[3].netPosition - financialData[0].netPosition >= 0
-                              ? 'success.main'
-                              : 'error.main'
-                          }
+                          color={financialData[3].netPosition >= 0 ? 'success.main' : 'error.main'}
                         >
-                          {formatCurrency(
-                            financialData[3].netPosition - financialData[0].netPosition
-                          )}
+                          {formatCurrency(financialData[3].netPosition)}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -1955,7 +1960,8 @@ function App() {
                             <TableCell align="right"><strong>Discounts</strong></TableCell>
                             <TableCell align="right"><strong>Turnover</strong></TableCell>
                             <TableCell align="right"><strong>Costs</strong></TableCell>
-                            <TableCell align="right"><strong>Surplus</strong></TableCell>
+                            <TableCell align="right"><strong>Annual Surplus</strong></TableCell>
+                            <TableCell align="right"><strong>Cumulative Surplus</strong></TableCell>
                             <TableCell align="center"><strong>Fee %</strong></TableCell>
                             <TableCell align="center"><strong>Pay %</strong></TableCell>
                           </TableRow>
@@ -1970,6 +1976,15 @@ function App() {
                               </TableCell>
                               <TableCell align="right">{formatCurrency(row.revenue)}</TableCell>
                               <TableCell align="right">{formatCurrency(row.costs)}</TableCell>
+                              <TableCell
+                                align="right"
+                                sx={{
+                                  color: row.annualSurplus >= 0 ? 'success.main' : 'error.main',
+                                  fontWeight: 600,
+                                }}
+                              >
+                                {formatCurrency(row.annualSurplus)}
+                              </TableCell>
                               <TableCell
                                 align="right"
                                 sx={{
@@ -2039,7 +2054,7 @@ function App() {
                   <Card elevation={3}>
                     <CardContent>
                       <Typography variant="h6" gutterBottom>
-                        Surplus Over Time
+                        Surplus Over Time (Annual vs Cumulative)
                       </Typography>
                       <Box ref={surplusChartRef}>
                         <ResponsiveContainer width="100%" height={250}>
@@ -2049,14 +2064,8 @@ function App() {
                             <YAxis tickFormatter={(value) => `£${(value / 1000).toFixed(0)}k`} />
                             <Tooltip formatter={(value) => formatTooltipValue(value)} />
                             <Legend />
-                            <Bar dataKey="netPosition" name="Surplus">
-                              {financialData.map((entry, index) => (
-                                <Cell
-                                  key={`cell-${index}`}
-                                  fill={entry.netPosition < 0 ? '#d32f2f' : '#1976d2'}
-                                />
-                              ))}
-                            </Bar>
+                            <Bar dataKey="annualSurplus" name="Annual Surplus" fill="#1976d2" />
+                            <Bar dataKey="netPosition" name="Cumulative Surplus" fill="#9c27b0" />
                           </BarChart>
                         </ResponsiveContainer>
                       </Box>
@@ -2190,8 +2199,13 @@ function App() {
                               {formatCurrency(nonStaffCostsAfterInflation)} = {formatCurrency(combinedCosts)}
                             </Typography>
                             <Typography variant="body2">
-                              <strong>Step 7:</strong> Surplus = {formatCurrency(year.revenue)} -{' '}
-                              {formatCurrency(year.costs)} = {formatCurrency(year.netPosition)}
+                              <strong>Step 7:</strong> Annual Surplus = {formatCurrency(year.revenue)} -{' '}
+                              {formatCurrency(year.costs)} = {formatCurrency(year.annualSurplus)}
+                            </Typography>
+                            <Typography variant="body2">
+                              <strong>Step 8:</strong> Cumulative Surplus = Previous Surplus + Annual Surplus ={' '}
+                              {formatCurrency(previousYear.netPosition)} + {formatCurrency(year.annualSurplus)} ={' '}
+                              {formatCurrency(year.netPosition)}
                             </Typography>
                           </Stack>
                         </Paper>
