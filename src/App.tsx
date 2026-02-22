@@ -41,6 +41,7 @@ import {
   Accordion,
   AccordionSummary,
   AccordionDetails,
+  Tooltip as MuiTooltip,
 } from '@mui/material'
 import Grid from '@mui/material/GridLegacy'
 import {
@@ -54,6 +55,7 @@ import {
   ExpandMore,
   DarkMode,
   LightMode,
+  InfoOutlined,
 } from '@mui/icons-material'
 import './App.css'
 import {
@@ -97,6 +99,15 @@ const getInitialThemeMode = (): ThemeMode => {
 
   return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
+
+const LabelWithTooltip = ({ label, tooltip }: { label: string; tooltip: string }) => (
+  <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    <span>{label}</span>
+    <MuiTooltip title={tooltip} arrow>
+      <InfoOutlined sx={{ fontSize: '0.9rem', color: 'text.secondary', cursor: 'help' }} />
+    </MuiTooltip>
+  </Box>
+)
 
 function App() {
   const [themeMode, setThemeMode] = useState<ThemeMode>(getInitialThemeMode)
@@ -1120,13 +1131,16 @@ function App() {
                   <Stack spacing={3}>
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Scenarios</Typography>
+                        <LabelWithTooltip
+                          label="Scenarios"
+                          tooltip="Save, load, and manage named sets of model assumptions."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
                           <TextField
                             select
-                            label="Saved Scenarios"
+                            label={<LabelWithTooltip label="Saved Scenarios" tooltip="Choose an existing saved scenario to load or delete." />}
                             value={selectedScenarioId}
                             onChange={(e) => {
                               const nextId = e.target.value
@@ -1144,7 +1158,7 @@ function App() {
                             ))}
                           </TextField>
                           <TextField
-                            label="Scenario Name"
+                            label={<LabelWithTooltip label="Scenario Name" tooltip="Name used when saving this set of assumptions." />}
                             value={scenarioName}
                             onChange={(e) => setScenarioName(e.target.value)}
                             fullWidth
@@ -1184,7 +1198,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Presets</Typography>
+                        <LabelWithTooltip
+                          label="Presets"
+                          tooltip="Quick-start templates that apply predefined assumptions."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={1.5}>
@@ -1217,7 +1234,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Enrollment</Typography>
+                        <LabelWithTooltip
+                          label="Enrollment"
+                          tooltip="Student numbers used to calculate fee revenue."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
@@ -1229,12 +1249,12 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Set students per year"
+                            label={<LabelWithTooltip label="Set students per year" tooltip="Enable separate enrollment values for Year 1, Year 2, and Year 3." />}
                           />
                           {useStudentsByYear ? (
                             <>
                               <TextField
-                                label="Year 1 Students"
+                                label={<LabelWithTooltip label="Year 1 Students" tooltip="Projected number of students in Year 1." />}
                                 type="number"
                                 value={numChildrenYear1}
                                 onChange={(e) => setNumChildrenYear1(Number(e.target.value))}
@@ -1248,7 +1268,7 @@ function App() {
                                 }}
                               />
                               <TextField
-                                label="Year 2 Students"
+                                label={<LabelWithTooltip label="Year 2 Students" tooltip="Projected number of students in Year 2." />}
                                 type="number"
                                 value={numChildrenYear2}
                                 onChange={(e) => setNumChildrenYear2(Number(e.target.value))}
@@ -1262,7 +1282,7 @@ function App() {
                                 }}
                               />
                               <TextField
-                                label="Year 3 Students"
+                                label={<LabelWithTooltip label="Year 3 Students" tooltip="Projected number of students in Year 3." />}
                                 type="number"
                                 value={numChildrenYear3}
                                 onChange={(e) => setNumChildrenYear3(Number(e.target.value))}
@@ -1278,7 +1298,7 @@ function App() {
                             </>
                           ) : (
                             <TextField
-                              label="Number of Children"
+                              label={<LabelWithTooltip label="Number of Children" tooltip="Single enrollment value applied across all projected years." />}
                               type="number"
                               value={numChildren}
                               onChange={(e) => setNumChildren(Number(e.target.value))}
@@ -1299,7 +1319,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Fees & Discounts</Typography>
+                        <LabelWithTooltip
+                          label="Fees & Discounts"
+                          tooltip="Fee levels, annual fee changes, and discount assumptions used in turnover."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
@@ -1311,12 +1334,12 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Set fee per term per year"
+                            label={<LabelWithTooltip label="Set fee per term per year" tooltip="Set explicit fee values for Year 1, Year 2, and Year 3." />}
                           />
                           {useFeePerTermByYear ? (
                             <>
                               <TextField
-                                label="Year 1 Fee per Term"
+                                label={<LabelWithTooltip label="Year 1 Fee per Term" tooltip="Fee charged per term in Year 1." />}
                                 type="number"
                                 value={feePerTermYear1}
                                 onChange={(e) => setFeePerTermYear1(Number(e.target.value))}
@@ -1330,7 +1353,7 @@ function App() {
                                 }}
                               />
                               <TextField
-                                label="Year 2 Fee per Term"
+                                label={<LabelWithTooltip label="Year 2 Fee per Term" tooltip="Fee charged per term in Year 2." />}
                                 type="number"
                                 value={feePerTermYear2}
                                 onChange={(e) => setFeePerTermYear2(Number(e.target.value))}
@@ -1344,7 +1367,7 @@ function App() {
                                 }}
                               />
                               <TextField
-                                label="Year 3 Fee per Term"
+                                label={<LabelWithTooltip label="Year 3 Fee per Term" tooltip="Fee charged per term in Year 3." />}
                                 type="number"
                                 value={feePerTermYear3}
                                 onChange={(e) => setFeePerTermYear3(Number(e.target.value))}
@@ -1360,7 +1383,7 @@ function App() {
                             </>
                           ) : (
                             <TextField
-                              label="Fee per Term"
+                              label={<LabelWithTooltip label="Fee per Term" tooltip="Current base fee per term used to derive projected fees." />}
                               type="number"
                               value={feePerTerm}
                               onChange={(e) => setFeePerTerm(Number(e.target.value))}
@@ -1382,12 +1405,17 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Set fee increase per year"
+                            label={<LabelWithTooltip label="Set fee increase per year" tooltip="Apply different annual fee growth rates for each projected year." />}
                           />
                           {useFeeIncreaseByYear ? (
                             <>
                               <Box>
-                                <Typography gutterBottom>Year 1: {feeIncreaseYear1}%</Typography>
+                                <Typography gutterBottom>
+                                  <LabelWithTooltip
+                                    label={`Year 1: ${feeIncreaseYear1}%`}
+                                    tooltip="Percentage fee increase applied for Year 1."
+                                  />
+                                </Typography>
                                 <Slider
                                   value={feeIncreaseYear1}
                                   onChange={(_, value) => setFeeIncreaseYear1(value as number)}
@@ -1399,7 +1427,12 @@ function App() {
                                 />
                               </Box>
                               <Box>
-                                <Typography gutterBottom>Year 2: {feeIncreaseYear2}%</Typography>
+                                <Typography gutterBottom>
+                                  <LabelWithTooltip
+                                    label={`Year 2: ${feeIncreaseYear2}%`}
+                                    tooltip="Percentage fee increase applied for Year 2."
+                                  />
+                                </Typography>
                                 <Slider
                                   value={feeIncreaseYear2}
                                   onChange={(_, value) => setFeeIncreaseYear2(value as number)}
@@ -1411,7 +1444,12 @@ function App() {
                                 />
                               </Box>
                               <Box>
-                                <Typography gutterBottom>Year 3: {feeIncreaseYear3}%</Typography>
+                                <Typography gutterBottom>
+                                  <LabelWithTooltip
+                                    label={`Year 3: ${feeIncreaseYear3}%`}
+                                    tooltip="Percentage fee increase applied for Year 3."
+                                  />
+                                </Typography>
                                 <Slider
                                   value={feeIncreaseYear3}
                                   onChange={(_, value) => setFeeIncreaseYear3(value as number)}
@@ -1426,7 +1464,10 @@ function App() {
                           ) : (
                             <Box>
                               <Typography gutterBottom>
-                                Tuition Fee Increase: {feeIncrease}%
+                                <LabelWithTooltip
+                                  label={`Tuition Fee Increase: ${feeIncrease}%`}
+                                  tooltip="Single annual fee increase used when per-year fee increases are disabled."
+                                />
                               </Typography>
                               <Slider
                                 value={feeIncrease}
@@ -1441,7 +1482,7 @@ function App() {
                           )}
 
                           <TextField
-                            label="Staff Children"
+                            label={<LabelWithTooltip label="Staff Children" tooltip="Number of staff children receiving a fixed 50% discount." />}
                             type="number"
                             value={numStaffChildren}
                             onChange={(e) =>
@@ -1459,7 +1500,10 @@ function App() {
                           />
                           <Box>
                             <Typography gutterBottom>
-                              Other Children Discount: {otherChildrenDiscount}%
+                              <LabelWithTooltip
+                                label={`Other Children Discount: ${otherChildrenDiscount}%`}
+                                tooltip="Average discount rate applied to non-staff children."
+                              />
                             </Typography>
                             <Slider
                               value={otherChildrenDiscount}
@@ -1473,7 +1517,10 @@ function App() {
                           </Box>
                           <Box>
                             <Typography gutterBottom>
-                              Total Discount Effect (calculated): {formatNumber(calculatedDiscountEffect)}%
+                              <LabelWithTooltip
+                                label={`Total Discount Effect (calculated): ${formatNumber(calculatedDiscountEffect)}%`}
+                                tooltip="Weighted average discount rate used in revenue calculations."
+                              />
                             </Typography>
                             <Typography variant="body2" color="textSecondary">
                               Based on staff children at 50% discount and other children discount.
@@ -1485,7 +1532,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Staff Costs</Typography>
+                        <LabelWithTooltip
+                          label="Staff Costs"
+                          tooltip="Controls whether staffing costs are estimated by a percentage share or detailed salaries/headcount."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
@@ -1497,7 +1547,7 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Use detailed staff costs"
+                            label={<LabelWithTooltip label="Use detailed staff costs" tooltip="Calculate staff costs from salaries and headcount instead of using a percentage share." />}
                           />
                           {useDetailedStaffCosts ? (
                             <>
@@ -1509,12 +1559,12 @@ function App() {
                                     color="primary"
                                   />
                                 }
-                                label="Set staff salaries & headcount per year"
+                                label={<LabelWithTooltip label="Set staff salaries & headcount per year" tooltip="Set separate salary and headcount assumptions for each projected year." />}
                               />
                               {useStaffByYear ? (
                                 <>
                                   <TextField
-                                    label="Year 1 Teacher Salary"
+                                    label={<LabelWithTooltip label="Year 1 Teacher Salary" tooltip="Average annual teacher salary in Year 1." />}
                                     type="number"
                                     value={avgAnnualSalaryYear1}
                                     onChange={(e) => setAvgAnnualSalaryYear1(Number(e.target.value))}
@@ -1530,7 +1580,10 @@ function App() {
                                   {usePayIncreaseByYear && (
                                     <Box>
                                       <Typography gutterBottom>
-                                        Year 1 Pay Increase: {payIncreaseYear1}%
+                                        <LabelWithTooltip
+                                          label={`Year 1 Pay Increase: ${payIncreaseYear1}%`}
+                                          tooltip="Salary growth rate used to derive Year 1 staff salaries."
+                                        />
                                       </Typography>
                                       <Slider
                                         value={payIncreaseYear1}
@@ -1544,7 +1597,7 @@ function App() {
                                     </Box>
                                   )}
                                   <TextField
-                                    label="Year 1 Teachers"
+                                    label={<LabelWithTooltip label="Year 1 Teachers" tooltip="Number of teachers in Year 1." />}
                                     type="number"
                                     value={numTeachersYear1}
                                     onChange={(e) => setNumTeachersYear1(Number(e.target.value))}
@@ -1558,7 +1611,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 1 Support Salary"
+                                    label={<LabelWithTooltip label="Year 1 Support Salary" tooltip="Average annual support-staff salary in Year 1." />}
                                     type="number"
                                     value={avgSupportSalaryYear1}
                                     onChange={(e) => setAvgSupportSalaryYear1(Number(e.target.value))}
@@ -1572,7 +1625,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 1 Support Staff"
+                                    label={<LabelWithTooltip label="Year 1 Support Staff" tooltip="Number of support staff in Year 1." />}
                                     type="number"
                                     value={numSupportYear1}
                                     onChange={(e) => setNumSupportYear1(Number(e.target.value))}
@@ -1587,7 +1640,7 @@ function App() {
                                   />
 
                                   <TextField
-                                    label="Year 2 Teacher Salary"
+                                    label={<LabelWithTooltip label="Year 2 Teacher Salary" tooltip="Average annual teacher salary in Year 2." />}
                                     type="number"
                                     value={avgAnnualSalaryYear2}
                                     onChange={(e) => setAvgAnnualSalaryYear2(Number(e.target.value))}
@@ -1603,7 +1656,10 @@ function App() {
                                   {usePayIncreaseByYear && (
                                     <Box>
                                       <Typography gutterBottom>
-                                        Year 2 Pay Increase: {payIncreaseYear2}%
+                                        <LabelWithTooltip
+                                          label={`Year 2 Pay Increase: ${payIncreaseYear2}%`}
+                                          tooltip="Salary growth rate used to derive Year 2 staff salaries."
+                                        />
                                       </Typography>
                                       <Slider
                                         value={payIncreaseYear2}
@@ -1617,7 +1673,7 @@ function App() {
                                     </Box>
                                   )}
                                   <TextField
-                                    label="Year 2 Teachers"
+                                    label={<LabelWithTooltip label="Year 2 Teachers" tooltip="Number of teachers in Year 2." />}
                                     type="number"
                                     value={numTeachersYear2}
                                     onChange={(e) => setNumTeachersYear2(Number(e.target.value))}
@@ -1631,7 +1687,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 2 Support Salary"
+                                    label={<LabelWithTooltip label="Year 2 Support Salary" tooltip="Average annual support-staff salary in Year 2." />}
                                     type="number"
                                     value={avgSupportSalaryYear2}
                                     onChange={(e) => setAvgSupportSalaryYear2(Number(e.target.value))}
@@ -1645,7 +1701,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 2 Support Staff"
+                                    label={<LabelWithTooltip label="Year 2 Support Staff" tooltip="Number of support staff in Year 2." />}
                                     type="number"
                                     value={numSupportYear2}
                                     onChange={(e) => setNumSupportYear2(Number(e.target.value))}
@@ -1660,7 +1716,7 @@ function App() {
                                   />
 
                                   <TextField
-                                    label="Year 3 Teacher Salary"
+                                    label={<LabelWithTooltip label="Year 3 Teacher Salary" tooltip="Average annual teacher salary in Year 3." />}
                                     type="number"
                                     value={avgAnnualSalaryYear3}
                                     onChange={(e) => setAvgAnnualSalaryYear3(Number(e.target.value))}
@@ -1676,7 +1732,10 @@ function App() {
                                   {usePayIncreaseByYear && (
                                     <Box>
                                       <Typography gutterBottom>
-                                        Year 3 Pay Increase: {payIncreaseYear3}%
+                                        <LabelWithTooltip
+                                          label={`Year 3 Pay Increase: ${payIncreaseYear3}%`}
+                                          tooltip="Salary growth rate used to derive Year 3 staff salaries."
+                                        />
                                       </Typography>
                                       <Slider
                                         value={payIncreaseYear3}
@@ -1690,7 +1749,7 @@ function App() {
                                     </Box>
                                   )}
                                   <TextField
-                                    label="Year 3 Teachers"
+                                    label={<LabelWithTooltip label="Year 3 Teachers" tooltip="Number of teachers in Year 3." />}
                                     type="number"
                                     value={numTeachersYear3}
                                     onChange={(e) => setNumTeachersYear3(Number(e.target.value))}
@@ -1704,7 +1763,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 3 Support Salary"
+                                    label={<LabelWithTooltip label="Year 3 Support Salary" tooltip="Average annual support-staff salary in Year 3." />}
                                     type="number"
                                     value={avgSupportSalaryYear3}
                                     onChange={(e) => setAvgSupportSalaryYear3(Number(e.target.value))}
@@ -1718,7 +1777,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Year 3 Support Staff"
+                                    label={<LabelWithTooltip label="Year 3 Support Staff" tooltip="Number of support staff in Year 3." />}
                                     type="number"
                                     value={numSupportYear3}
                                     onChange={(e) => setNumSupportYear3(Number(e.target.value))}
@@ -1735,7 +1794,7 @@ function App() {
                               ) : (
                                 <>
                                   <TextField
-                                    label="Average Teacher Salary"
+                                    label={<LabelWithTooltip label="Average Teacher Salary" tooltip="Average annual teacher salary used across all years." />}
                                     type="number"
                                     value={avgAnnualSalary}
                                     onChange={(e) => setAvgAnnualSalary(Number(e.target.value))}
@@ -1749,7 +1808,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Number of Teachers"
+                                    label={<LabelWithTooltip label="Number of Teachers" tooltip="Teacher headcount used across all years." />}
                                     type="number"
                                     value={numTeachers}
                                     onChange={(e) => setNumTeachers(Number(e.target.value))}
@@ -1763,7 +1822,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Average Support Salary"
+                                    label={<LabelWithTooltip label="Average Support Salary" tooltip="Average annual support-staff salary used across all years." />}
                                     type="number"
                                     value={avgSupportSalary}
                                     onChange={(e) => setAvgSupportSalary(Number(e.target.value))}
@@ -1777,7 +1836,7 @@ function App() {
                                     }}
                                   />
                                   <TextField
-                                    label="Number of Support Staff"
+                                    label={<LabelWithTooltip label="Number of Support Staff" tooltip="Support-staff headcount used across all years." />}
                                     type="number"
                                     value={numSupportStaff}
                                     onChange={(e) => setNumSupportStaff(Number(e.target.value))}
@@ -1796,7 +1855,10 @@ function App() {
                           ) : (
                             <Box>
                               <Typography gutterBottom>
-                                Staff Cost Share: {formatNumber(staffCostShare)}%
+                                <LabelWithTooltip
+                                  label={`Staff Cost Share: ${formatNumber(staffCostShare)}%`}
+                                  tooltip="Percentage of total costs attributed to staff costs when detailed mode is disabled."
+                                />
                               </Typography>
                               <Slider
                                 value={staffCostShare}
@@ -1817,14 +1879,19 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Set pay increase per year"
+                            label={<LabelWithTooltip label="Set pay increase per year" tooltip="Apply different staff pay growth rates for each projected year." />}
                           />
                           {usePayIncreaseByYear ? (
                             <>
                               {!useStaffByYear && (
                                 <>
                                   <Box>
-                                    <Typography gutterBottom>Year 1: {payIncreaseYear1}%</Typography>
+                                    <Typography gutterBottom>
+                                      <LabelWithTooltip
+                                        label={`Year 1: ${payIncreaseYear1}%`}
+                                        tooltip="Pay increase applied to staff costs in Year 1."
+                                      />
+                                    </Typography>
                                     <Slider
                                       value={payIncreaseYear1}
                                       onChange={(_, value) => setPayIncreaseYear1(value as number)}
@@ -1836,7 +1903,12 @@ function App() {
                                     />
                                   </Box>
                                   <Box>
-                                    <Typography gutterBottom>Year 2: {payIncreaseYear2}%</Typography>
+                                    <Typography gutterBottom>
+                                      <LabelWithTooltip
+                                        label={`Year 2: ${payIncreaseYear2}%`}
+                                        tooltip="Pay increase applied to staff costs in Year 2."
+                                      />
+                                    </Typography>
                                     <Slider
                                       value={payIncreaseYear2}
                                       onChange={(_, value) => setPayIncreaseYear2(value as number)}
@@ -1848,7 +1920,12 @@ function App() {
                                     />
                                   </Box>
                                   <Box>
-                                    <Typography gutterBottom>Year 3: {payIncreaseYear3}%</Typography>
+                                    <Typography gutterBottom>
+                                      <LabelWithTooltip
+                                        label={`Year 3: ${payIncreaseYear3}%`}
+                                        tooltip="Pay increase applied to staff costs in Year 3."
+                                      />
+                                    </Typography>
                                     <Slider
                                       value={payIncreaseYear3}
                                       onChange={(_, value) => setPayIncreaseYear3(value as number)}
@@ -1865,7 +1942,10 @@ function App() {
                           ) : (
                             <Box>
                               <Typography gutterBottom>
-                                Staff Pay Increase: {payIncrease}%
+                                <LabelWithTooltip
+                                  label={`Staff Pay Increase: ${payIncrease}%`}
+                                  tooltip="Single annual pay increase used when per-year pay increases are disabled."
+                                />
                               </Typography>
                               <Slider
                                 value={payIncrease}
@@ -1884,12 +1964,20 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Inflation</Typography>
+                        <LabelWithTooltip
+                          label="Inflation"
+                          tooltip="Annual non-staff cost growth assumptions for each projected year."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
                           <Box>
-                            <Typography gutterBottom>Year 1: {inflationYear1}%</Typography>
+                            <Typography gutterBottom>
+                              <LabelWithTooltip
+                                label={`Year 1: ${inflationYear1}%`}
+                                tooltip="Inflation rate applied to non-staff costs for Year 1."
+                              />
+                            </Typography>
                             <Slider
                               value={inflationYear1}
                               onChange={(_, value) => setInflationYear1(value as number)}
@@ -1901,7 +1989,12 @@ function App() {
                           </Box>
 
                           <Box>
-                            <Typography gutterBottom>Year 2: {inflationYear2}%</Typography>
+                            <Typography gutterBottom>
+                              <LabelWithTooltip
+                                label={`Year 2: ${inflationYear2}%`}
+                                tooltip="Inflation rate applied to non-staff costs for Year 2."
+                              />
+                            </Typography>
                             <Slider
                               value={inflationYear2}
                               onChange={(_, value) => setInflationYear2(value as number)}
@@ -1913,7 +2006,12 @@ function App() {
                           </Box>
 
                           <Box>
-                            <Typography gutterBottom>Year 3: {inflationYear3}%</Typography>
+                            <Typography gutterBottom>
+                              <LabelWithTooltip
+                                label={`Year 3: ${inflationYear3}%`}
+                                tooltip="Inflation rate applied to non-staff costs for Year 3."
+                              />
+                            </Typography>
                             <Slider
                               value={inflationYear3}
                               onChange={(_, value) => setInflationYear3(value as number)}
@@ -1929,7 +2027,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Current Position</Typography>
+                        <LabelWithTooltip
+                          label="Current Position"
+                          tooltip="Baseline financial position used as the starting point for projections."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
@@ -1947,7 +2048,7 @@ function App() {
                             </Typography>
                           </Paper>
                           <TextField
-                            label="Current Annual Surplus"
+                            label={<LabelWithTooltip label="Current Annual Surplus" tooltip="Current yearly surplus amount (turnover minus costs) used as the baseline." />}
                             type="number"
                             value={currentSurplus}
                             onChange={(e) => setCurrentSurplus(Number(e.target.value))}
@@ -1967,7 +2068,10 @@ function App() {
 
                     <Accordion defaultExpanded={false}>
                       <AccordionSummary expandIcon={<ExpandMore />}>
-                        <Typography>Export</Typography>
+                        <LabelWithTooltip
+                          label="Export"
+                          tooltip="Options that control PDF and Excel outputs."
+                        />
                       </AccordionSummary>
                       <AccordionDetails>
                         <Stack spacing={2}>
@@ -1979,7 +2083,7 @@ function App() {
                                 color="primary"
                               />
                             }
-                            label="Include charts in PDF"
+                            label={<LabelWithTooltip label="Include charts in PDF" tooltip="If enabled, chart images are added to the PDF export after the tables." />}
                           />
                           <Stack direction="row" spacing={1} flexWrap="wrap">
                             <Button variant="outlined" onClick={handleExportPdf}>
