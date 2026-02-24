@@ -40,7 +40,6 @@ import {
 } from '@mui/material'
 import {
   TrendingUp,
-  TrendingDown,
   Settings,
   Assessment,
   Calculate,
@@ -48,7 +47,6 @@ import {
   People,
   School,
   AttachMoney,
-  Percent,
 } from '@mui/icons-material'
 import './App.css'
 
@@ -132,12 +130,6 @@ function App() {
   // Calculate financial projections
   const financialData = useMemo(() => {
     const termsPerYear = 3
-    const numOtherChildren = Math.max(0, numChildren - numStaffChildren)
-    const staffChildrenDiscount = numStaffChildren * 0.5
-    const otherChildrenDiscountAmount = numOtherChildren * (otherChildrenDiscount / 100)
-    const calculatedTotalDiscount = numChildren > 0
-      ? ((staffChildrenDiscount + otherChildrenDiscountAmount) / numChildren) * 100
-      : 0
 
     const effectiveDiscount = totalDiscountEffect / 100
     const grossAnnualRevenue = numChildren * feePerTerm * termsPerYear
@@ -258,6 +250,10 @@ function App() {
     }).format(value)
   }
 
+  const formatPercentage = (value: number, decimalPlaces: number) => {
+    return `${value.toFixed(decimalPlaces)}%`
+  }
+
   const baseCalculations = useMemo(() => {
     const termsPerYear = 3
     const effectiveDiscount = totalDiscountEffect / 100
@@ -298,13 +294,13 @@ function App() {
         <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
           <Grid container spacing={3}>
             {/* Input Panel */}
+          <Grid container spacing={3}>
+            {/* Input Panel */}
             <Grid item xs={12} md={4}>
               <Card elevation={3}>
                 <CardContent>
                   <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
                     <Settings sx={{ mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h5" component="h2">
-                      Parameters
                     </Typography>
                   </Box>
 
@@ -604,7 +600,15 @@ function App() {
                               </TableCell>
                               <TableCell align="center">
                                 {row.feeIncrease > 0 ? (
-                                  <Chip label={`${row.feeIncrease}%`} size="small" color="primary" />
+                                  <Chip
+                                    label={
+                                      row.year === 'Year 2' || row.year === 'Year 3'
+                                        ? formatPercentage(row.feeIncrease, 1)
+                                        : `${row.feeIncrease}%`
+                                    }
+                                    size="small"
+                                    color="primary"
+                                  />
                                 ) : (
                                   '-'
                                 )}
@@ -738,7 +742,6 @@ function App() {
 
                     {financialData.slice(1).map((year, index) => {
                       const yearNum = index + 1
-                      const feeMult = 1 + feeIncrease / 100
                       const payMult = 1 + payIncrease / 100
                       const inflationRate =
                         yearNum === 1 ? inflationYear1 : yearNum === 2 ? inflationYear2 : inflationYear3
@@ -751,7 +754,6 @@ function App() {
                         baseCostsBeforePay = baseCalculations.currentAnnualCosts * Math.pow(payMult, yearNum - 1)
                       }
                       const costsAfterPayIncrease = baseCostsBeforePay * payMult
-                      const costsAfterInflation = costsAfterPayIncrease * inflationMult
 
                       return (
                         <Paper key={yearNum} elevation={1} sx={{ p: 2, mb: 2 }}>
@@ -761,7 +763,10 @@ function App() {
                           <Stack spacing={1.5}>
                             <Typography variant="body2">
                               <strong>Step 1:</strong> Gross Revenue = {formatCurrency(prevGrossRevenue)} × (1 +{' '}
-                              {feeIncrease}%) = {formatCurrency(year.grossRevenue)}
+                              {yearNum === 2 || yearNum === 3
+                                ? formatPercentage(feeIncrease, 1)
+                                : `${feeIncrease}%`}{' '}
+                              = {formatCurrency(year.grossRevenue)}
                             </Typography>
                             <Typography variant="body2">
                               <strong>Step 2:</strong> Discount = {formatCurrency(year.grossRevenue)} ×{' '}
